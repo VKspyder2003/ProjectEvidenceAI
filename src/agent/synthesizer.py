@@ -24,7 +24,7 @@ def format_evidence_for_prompt(evidence_list: List[Evidence]) -> str:
             
         block.append("\nEvidence:")
         # Convert content to a readable JSON string or dict
-        block.append(json.dumps(ev.content, indent=2))
+        block.append(json.dumps(ev.content))
         
         formatted_blocks.append("\n".join(block))
         

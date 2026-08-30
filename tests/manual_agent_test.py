@@ -27,20 +27,32 @@ async def run_tests():
     graph = build_graph()
     
     queries = [
-        ("Test B", "Search for open issues related to documentation in octocat/Hello-World and summarize the results."),
-        ("Test C", "Find recent pull requests and open issues related to documentation in octocat/Hello-World. Summarize the current state and identify anything that may need attention.")
+        ("Test A - Recovery", "Read the README.md file in octocat/Hello-World. Start by checking the 'main' branch."),
+        ("Test B - Fatal", "Summarize the open issues in octocat/this-repo-does-not-exist"),
+        ("Test C - Budget", "Find all recent pull requests and open issues in octocat/Hello-World. Summarize the state of the repository.")
     ]
     
     for test_name, query in queries:
         print(f"\n[{test_name}] Query: {query}")
         print("=" * 60)
         
+        from src.agent.state import SessionContext
+        
         initial_state = {
             "query": query,
+            "session_context": SessionContext(repo_owner="octocat", repo_name="Hello-World"),
             "plan": [],
+            "plan_version": 0,
             "current_step": 0,
             "tool_calls_history": [],
-            "retrieved_evidence": []
+            "retrieved_evidence": [],
+            "budget_consumed": 0,
+            "retry_count": 0,
+            "correction_hints": [],
+            "failed_step_id": None,
+            "fatal_error": False,
+            "draft_response": None,
+            "error": None
         }
         
         config = {
@@ -67,15 +79,25 @@ async def run_tests():
                             print(f"  [{step.id}] {step.tool_name}({step.arguments})")
                             print(f"      Reason: {step.reason}")
                             
+                    elif node_name == "evidence_budget":
+                        evidence = state_updates.get("retrieved_evidence", [])
+                        total_budget = sum(ev.token_estimate for ev in evidence)
+                        print(f"EVIDENCE BUDGET: Deduplicated and bounded evidence to {len(evidence)} items. Total estimated tokens: {total_budget}")
+                        
                     elif node_name == "executor":
                         history = state_updates.get("tool_calls_history", [])
                         if history:
                             latest = history[-1]
                             success = latest.result.get("success") if isinstance(latest.result, dict) else "Unknown"
                             print(f"Executed step {latest.step_id} -> {latest.tool_name}")
-                            print(f"Success: {success}")
+                            print(f"Success: {success}, Failure Type: {latest.failure_type.value}")
                             if not success:
                                 print(f"Error: {latest.result.get('error')}")
+                    
+                    elif node_name == "reformulator":
+                        hints = state_updates.get("correction_hints", [])
+                        if hints:
+                            print(f"REFORMULATOR HINT: {hints[-1]}")
                                 
                     elif node_name == "synthesizer":
                         err = state_updates.get("error")

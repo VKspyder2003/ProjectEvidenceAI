@@ -25,6 +25,34 @@ RULES:
 10. Prefer the minimum number of tool calls necessary to gather sufficient
     evidence.
 11. Return only valid structured output matching the requested schema.
+
+SESSION CONTEXT:
+{session_context}
+
+PREVIOUS SUCCESSFUL PLAN STEPS:
+{successful_steps}
+
+LAST FAILURE:
+{last_failure}
+
+CORRECTION HINTS (If Retrying):
+{correction_hints}
+
+INSTRUCTIONS FOR RECOVERY (If applicable):
+If you are recovering from a failure, do NOT duplicate successful steps. Output only the REMAINING steps starting from the point of failure.
+CRITICAL: You MUST follow the CORRECTION HINTS above, even if they contradict the original user query. The hints reflect reality (e.g. actual branch names), while the user query might be mistaken.
+"""
+
+REFORMULATOR_SYSTEM_PROMPT = """You are an expert recovery and self-correction assistant for a GitHub agent.
+A tool execution has failed. Your job is to analyze the failure and provide a single, actionable correction hint for the planner.
+
+FAILURE CONTEXT:
+Tool Name: {tool_name}
+Arguments: {arguments}
+Error: {error}
+
+Based on the failure, output a single, clear instruction to the planner on what to change in its next plan.
+Do not output anything else. Just the hint string.
 """
 
 
