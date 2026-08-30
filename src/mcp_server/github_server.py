@@ -3,11 +3,18 @@ import base64
 import contextlib
 from typing import Optional
 from fastmcp import FastMCP
-from .config import config
-from .models import (
-    ToolResult, GitHubError, PullRequestModel, 
-    FileDiffMetadata, PRDiffResult, IssueModel, FileContentResult
-)
+try:
+    from .config import config
+    from .models import (
+        ToolResult, GitHubError, PullRequestModel, 
+        FileDiffMetadata, PRDiffResult, IssueModel, FileContentResult
+    )
+except ImportError:
+    from config import config
+    from models import (
+        ToolResult, GitHubError, PullRequestModel, 
+        FileDiffMetadata, PRDiffResult, IssueModel, FileContentResult
+    )
 
 # Global HTTP client
 _client: Optional[httpx.AsyncClient] = None

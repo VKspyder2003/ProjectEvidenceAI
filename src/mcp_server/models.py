@@ -9,7 +9,7 @@ class GitHubError(BaseModel):
 
 class ToolResult(BaseModel):
     success: bool = Field(..., description="Whether the operation was successful")
-    data: Any = Field(None, description="The returned data if successful")
+    data: Any = Field(None, description="The returned data if successful. Could be empty if no results.")
     error: Optional[GitHubError] = Field(None, description="Error details if unsuccessful")
     
 class PullRequestModel(BaseModel):
