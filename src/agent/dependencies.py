@@ -16,7 +16,7 @@ def get_llm() -> BaseChatModel:
     if provider == "groq":
         try:
             from langchain_groq import ChatGroq
-            return ChatGroq(model=model_name)
+            return ChatGroq(model=model_name, max_tokens=2000)
         except ImportError:
             raise ImportError("Please install langchain-groq for Groq support")
     elif provider == "gemini" or provider == "google":

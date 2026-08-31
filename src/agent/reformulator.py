@@ -23,7 +23,17 @@ async def reformulator_node(state: AgentState, config: RunnableConfig) -> Dict[s
     if not last_failure:
         return {"correction_hints": ["Unknown failure occurred. Try a different approach."]}
 
+    tool_history = state.get("tool_calls_history", [])
+    if tool_history:
+        history_str = "\n".join([
+            f"Step {s.step_id}: {s.tool_name}({json.dumps(s.arguments)}) -> Success: {s.failure_type.value == 'none'}" 
+            for s in tool_history
+        ])
+    else:
+        history_str = "No previous executions."
+
     system_prompt = REFORMULATOR_SYSTEM_PROMPT.format(
+        history=history_str,
         tool_name=last_failure.get("tool_name", "Unknown"),
         arguments=json.dumps(last_failure.get("arguments", {})),
         error=json.dumps(last_failure.get("error", {}))
@@ -45,7 +55,6 @@ async def reformulator_node(state: AgentState, config: RunnableConfig) -> Dict[s
     
     # We get the failed step ID from the tool call history
     failed_step_id = None
-    tool_history = state.get("tool_calls_history", [])
     if tool_history:
         failed_step_id = tool_history[-1].step_id
         

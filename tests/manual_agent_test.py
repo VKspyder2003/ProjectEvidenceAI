@@ -61,6 +61,8 @@ async def run_tests():
             }
         }
         
+        main_executions = 0
+        
         print("Executing Graph Workflow...\n")
         try:
             async for event in graph.astream(initial_state, config=config):
@@ -68,6 +70,15 @@ async def run_tests():
                     print(f"--- Node Executed: {node_name.upper()} ---")
                     
                     state_updates = state_updates or {}
+                    
+                    # Track executions for Test A assertions
+                    if test_name.startswith("Test A") and node_name == "executor":
+                        history = state_updates.get("tool_calls_history", [])
+                        if history:
+                            latest = history[-1]
+                            if latest.tool_name == "read_repository_file" and latest.arguments.get("branch") == "main":
+                                main_executions += 1
+                                
                     
                     if node_name == "planner":
                         err = state_updates.get("error")
@@ -108,6 +119,11 @@ async def run_tests():
                             print(state_updates.get("draft_response"))
                             print("==========================")
                     print()
+                    
+            if test_name.startswith("Test A"):
+                assert main_executions <= 1, f"Regression Failed: 'main' branch was executed {main_executions} times (expected 1)."
+                print("✓ Verified: 'main' branch was executed only once.")
+                
         except Exception as e:
             print(f"Graph execution failed: {e}")
 

@@ -3,7 +3,9 @@ from langchain_core.runnables import RunnableConfig
 
 from .state import AgentState, Evidence
 
-MAX_ESTIMATED_EVIDENCE_TOKENS = 1500
+MAX_SYNTHESIS_INPUT_TOKENS = 1500
+SYSTEM_PROMPT_OVERHEAD = 500
+MAX_ESTIMATED_EVIDENCE_TOKENS = MAX_SYNTHESIS_INPUT_TOKENS - SYSTEM_PROMPT_OVERHEAD
 
 async def evidence_budget_node(state: AgentState, config: RunnableConfig) -> Dict[str, Any]:
     """

@@ -35,10 +35,11 @@ def evaluate_execution(state: AgentState) -> Literal["executor", "evidence_budge
         return "executor"
     return "evidence_budget"
 
-def build_graph():
+def build_graph(checkpointer=None):
     """
     Compiles and returns the Phase 2 agentic workflow graph.
     No global LLM or MCP Client instances are created here.
+    If checkpointer is provided, the graph will use it for persistent memory.
     """
     builder = StateGraph(AgentState)
     
@@ -76,4 +77,4 @@ def build_graph():
     
     builder.add_edge("output_validator", END)
     
-    return builder.compile()
+    return builder.compile(checkpointer=checkpointer)

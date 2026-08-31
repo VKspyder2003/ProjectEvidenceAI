@@ -7,3 +7,5 @@ pytest-asyncio>=0.24.0
 langgraph
 langchain-core
 langchain-mcp-adapters
+langgraph-checkpoint-sqlite
+streamlit
