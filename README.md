@@ -1,6 +1,8 @@
-# Agentic RAG over Live GitHub Data - Phase 1
+# ProjectEvidenceAI: Agentic RAG over Live GitHub Data
 
-This repository contains Phase 1 of the Agentic RAG system connecting to live GitHub repository data using the Model Context Protocol (MCP).
+[![CI](https://github.com/Vishwas/ProjectEvidenceAI/actions/workflows/ci.yml/badge.svg)](https://github.com/Vishwas/ProjectEvidenceAI/actions/workflows/ci.yml)
+
+This repository contains Phase 4 of the Agentic RAG system connecting to live GitHub repository data using LangGraph and the Model Context Protocol (MCP).
 
 ## Setup
 1. Copy `.env.example` to `.env` and fill in your `GITHUB_TOKEN`.
