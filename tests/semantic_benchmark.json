@@ -1,0 +1,85 @@
+[
+  {
+    "id": "sem_1",
+    "description": "Straightforward PR summary",
+    "query": "What does PR #11049 do?",
+    "retrieved_evidence": [
+      {
+        "source_type": "pull_request",
+        "source_id": "PR-11049",
+        "url": "https://github.com/octocat/Hello-World/pull/11049",
+        "content": "This PR fixes a bug in the authentication flow where users could not log in if their password contained a space. It updates auth.py to properly encode spaces before sending them to the backend."
+      }
+    ],
+    "expected_answer": "It fixes an authentication bug where passwords with spaces prevented login, by updating auth.py to encode spaces.",
+    "use_synthesizer": true
+  },
+  {
+    "id": "sem_2",
+    "description": "Multi-source GitHub analysis",
+    "query": "How is the login bug related to the README update?",
+    "retrieved_evidence": [
+      {
+        "source_type": "pull_request",
+        "source_id": "PR-100",
+        "url": "https://github.com/octocat/Hello-World/pull/100",
+        "content": "Fix login bug. Also adds a note about it in the README."
+      },
+      {
+        "source_type": "file",
+        "source_id": "README.md",
+        "url": "https://github.com/octocat/Hello-World/blob/main/README.md",
+        "content": "# Hello World\nNote: Login passwords cannot contain spaces, as fixed in PR 100."
+      }
+    ],
+    "expected_answer": "The login bug fix in PR 100 included an update to the README to document that passwords cannot contain spaces.",
+    "use_synthesizer": true
+  },
+  {
+    "id": "sem_3",
+    "description": "Insufficient-evidence case",
+    "query": "When was the last deployment to production?",
+    "retrieved_evidence": [
+      {
+        "source_type": "issue",
+        "source_id": "Issue-1",
+        "url": "https://github.com/octocat/Hello-World/issues/1",
+        "content": "We need to set up a deployment pipeline."
+      }
+    ],
+    "expected_answer": "I do not have enough information to determine when the last deployment to production occurred.",
+    "use_synthesizer": true
+  },
+  {
+    "id": "sem_4",
+    "description": "Sanity check: Supported answer",
+    "query": "Who authored PR 51?",
+    "retrieved_evidence": [
+      {
+        "source_type": "pull_request",
+        "source_id": "PR-51",
+        "url": "https://github.com/octocat/Hello-World/pull/51",
+        "content": "Title: Fix authentication crash. Author: dev-alice. Description: Fixed null pointer in auth service."
+      }
+    ],
+    "expected_answer": "dev-alice authored PR 51.",
+    "mock_actual_response": "dev-alice authored PR 51.",
+    "use_synthesizer": false
+  },
+  {
+    "id": "sem_5",
+    "description": "Sanity check: Hallucinated claims",
+    "query": "Who authored PR 51?",
+    "retrieved_evidence": [
+      {
+        "source_type": "pull_request",
+        "source_id": "PR-51",
+        "url": "https://github.com/octocat/Hello-World/pull/51",
+        "content": "Title: Fix authentication crash. Author: dev-alice. Description: Fixed null pointer in auth service."
+      }
+    ],
+    "expected_answer": "dev-alice authored PR 51.",
+    "mock_actual_response": "PR 51 was authored by dev-bob, who also rewrote the entire backend in Rust.",
+    "use_synthesizer": false
+  }
+]
