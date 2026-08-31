@@ -101,7 +101,7 @@ async def test_run_evaluation_benchmark(capsys):
                 
                 passed_truncate = True
                 if case.get("expect_truncate"):
-                    passed_truncate = any("[TRUNCATED BY BUDGET]" in ev.content.get("content", "") for ev in new_ev)
+                    passed_truncate = any("[TRUNCATED BY BUDGET]" in str(ev.content) for ev in new_ev)
                 
                 passed = passed_count and passed_truncate
 

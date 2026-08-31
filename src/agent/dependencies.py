@@ -11,7 +11,17 @@ class AgentDependencies:
 def get_llm() -> BaseChatModel:
     """Instantiate the configured LLM based on environment variables."""
     provider = os.getenv("LLM_PROVIDER", "ollama").lower()
-    model_name = os.getenv("LLM_MODEL", "llama3") 
+    
+    env_model = os.getenv("LLM_MODEL")
+    if not env_model or env_model == "llama3":
+        if provider == "groq":
+            model_name = "qwen/qwen3.8-27b"
+        elif provider in ("gemini", "google"):
+            model_name = "gemini-1.5-pro"
+        else:
+            model_name = "llama3"
+    else:
+        model_name = env_model
 
     if provider == "groq":
         try:

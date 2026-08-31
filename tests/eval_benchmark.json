@@ -25,7 +25,7 @@
     {"id": "r_7", "category": "Routing & Recovery", "type": "routing", "state": {"current_step": 0, "plan_length": 1, "fatal_error": false, "failure_type": "recoverable", "retry_count": 3}, "expected_route": "evidence_budget", "desc": "Retry exhaustion"},
   
     {"id": "b_1", "category": "Evidence Budget", "type": "budget", "evidence": [{"id": "E1", "tokens": 500}, {"id": "E1", "tokens": 500}], "expected_count": 1, "desc": "Evidence deduplication"},
-    {"id": "b_2", "category": "Evidence Budget", "type": "budget", "evidence": [{"id": "E1", "tokens": 800}, {"id": "E2", "tokens": 800}], "expected_count": 2, "expect_truncate": true, "desc": "Large evidence sets (truncate)"},
-    {"id": "b_3", "category": "Evidence Budget", "type": "budget", "evidence": [{"id": "E1", "tokens": 1000}, {"id": "E2", "tokens": 500}], "expected_count": 1, "expect_truncate": false, "desc": "Large evidence sets (drop)"},
+    {"id": "b_2", "category": "Evidence Budget", "type": "budget", "evidence": [{"id": "E1", "tokens": 1500}, {"id": "E2", "tokens": 1500}], "expected_count": 2, "expect_truncate": true, "desc": "Large evidence sets (truncate)"},
+    {"id": "b_3", "category": "Evidence Budget", "type": "budget", "evidence": [{"id": "E1", "tokens": 2000}, {"id": "E2", "tokens": 500}], "expected_count": 1, "expect_truncate": false, "desc": "Large evidence sets (drop)"},
     {"id": "b_4", "category": "Evidence Budget", "type": "budget", "evidence": [{"id": "E1", "tokens": 500}], "expected_count": 1, "expect_truncate": false, "desc": "Small evidence sets"}
   ]

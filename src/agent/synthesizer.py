@@ -23,8 +23,11 @@ def format_evidence_for_prompt(evidence_list: List[Evidence]) -> str:
             block.append(f"URL: {ev.url}")
             
         block.append("\nEvidence:")
-        # Convert content to a readable JSON string or dict
-        block.append(json.dumps(ev.content))
+        # Use the string directly if it's already serialized by the evidence budget
+        if isinstance(ev.content, str):
+            block.append(ev.content)
+        else:
+            block.append(json.dumps(ev.content))
         
         formatted_blocks.append("\n".join(block))
         
@@ -34,6 +37,12 @@ async def synthesizer_node(state: AgentState, config: RunnableConfig) -> Dict[st
     """
     Synthesizer node that generates the final grounded answer based on collected evidence.
     """
+    err = state.get("error")
+    if err:
+        return {
+            "draft_response": None
+        }
+
     evidence = state.get("retrieved_evidence", [])
     query = state.get("query", "")
     

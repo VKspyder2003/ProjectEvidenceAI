@@ -176,9 +176,13 @@ if prompt := st.chat_input("What changed recently and what needs attention?"):
             final_state = final_snapshot.values
             
             if final_state:
+                err = final_state.get("error")
                 plan = final_state.get("plan", [])
-                if len(plan) == 0:
-                    status.update(label="No executable plan was generated. Please verify the repository and question.", state="error", expanded=True)
+                
+                if err:
+                    status.update(label="Analysis failed due to an error.", state="error", expanded=True)
+                elif len(plan) == 0:
+                    status.update(label="No executable plan was required or generated.", state="complete", expanded=False)
                 else:
                     status.update(label="Analysis complete", state="complete", expanded=False)
                     

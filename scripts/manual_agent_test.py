@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-# Force environment config for the test
-os.environ["LLM_PROVIDER"] = "groq"
-os.environ["LLM_MODEL"] = "qwen/qwen3.8-27b"
+# Use current environment config or default to groq
+if "LLM_PROVIDER" not in os.environ:
+    os.environ["LLM_PROVIDER"] = "groq"
 
 # Attempt to load local API keys (GROQ_API_KEY, GITHUB_TOKEN)
 load_dotenv()

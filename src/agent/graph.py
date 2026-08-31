@@ -9,6 +9,14 @@ from .reformulator import reformulator_node
 from .evidence_budget import evidence_budget_node
 from .output_validator_node import output_validator_node
 
+def evaluate_planner(state: AgentState) -> Literal["executor", "synthesizer"]:
+    """
+    Evaluates whether the planner produced a valid plan or failed.
+    """
+    if state.get("error") or state.get("fatal_error"):
+        return "synthesizer"
+    return "executor"
+
 def evaluate_execution(state: AgentState) -> Literal["executor", "evidence_budget", "reformulator"]:
     """
     Evaluates whether the executor should run again, recover, or finish.
@@ -52,8 +60,15 @@ def build_graph(checkpointer=None):
     
     builder.add_edge(START, "planner")
     
-    # Planner always routes initially to executor
-    builder.add_edge("planner", "executor")
+    # Planner conditionally routes to synthesizer on error
+    builder.add_conditional_edges(
+        "planner",
+        evaluate_planner,
+        {
+            "executor": "executor",
+            "synthesizer": "synthesizer"
+        }
+    )
     
     # Executor conditionally routes
     builder.add_conditional_edges(
