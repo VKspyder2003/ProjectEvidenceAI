@@ -9,3 +9,7 @@ langchain-core
 langchain-mcp-adapters
 langgraph-checkpoint-sqlite
 streamlit
+langchain-groq
+langchain-google-genai
+langchain-ollama
+deepeval

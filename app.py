@@ -64,7 +64,7 @@ for msg in st.session_state.chat_history:
         if msg.get("citations"):
             st.markdown("**Verified Sources**")
             for cit in msg["citations"]:
-                st.markdown(f"- [{cit['id']}]({cit['url']})")
+                st.markdown(f"- [{cit.get('source_id', 'Unknown')}]({cit.get('url', '#')})")
 
 if prompt := st.chat_input("What changed recently and what needs attention?"):
     # Add user message to state
@@ -195,8 +195,8 @@ if prompt := st.chat_input("What changed recently and what needs attention?"):
                         vr = validation_result.model_dump()
                     else:
                         vr = validation_result
-                    if vr.get("citations"):
-                        citations = vr["citations"]
+                    if vr.get("validated_citations"):
+                        citations = [c for c in vr["validated_citations"] if c.get("is_valid")]
                         
                 # Extract metrics
                 history = final_state.get("tool_calls_history", [])
@@ -212,7 +212,7 @@ if prompt := st.chat_input("What changed recently and what needs attention?"):
             if citations:
                 st.markdown("**Verified Sources**")
                 for cit in citations:
-                    st.markdown(f"- [{cit['id']}]({cit['url']})")
+                    st.markdown(f"- [{cit.get('source_id', 'Unknown')}]({cit.get('url', '#')})")
             
             if metrics_str:
                 st.caption(metrics_str)
