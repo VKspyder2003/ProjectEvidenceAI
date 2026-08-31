@@ -57,7 +57,7 @@ The agent is capable of recovering from missing branches and files without user 
 - **Model Context Protocol (MCP) Integration:** Direct, authenticated read-access to the GitHub API via a dedicated FastMCP server.
 - **Self-Healing Execution:** A dedicated Reformulator node catches non-fatal execution errors and dynamically injects scoped correction hints to replace only the failed execution steps.
 - **Deterministic Citation Validation:** Every generated citation is checked against URLs present in retrieved MCP evidence, with fabricated and mismatched citations rejected. This is an algorithmic guardrail, not an LLM check.
-- **Deterministic Evidence Budgeting:** Features deterministic evidence deduplication and truncation. Uses approximate token budgeting via a deterministic character-based heuristic to prevent context window bloat and API rate limits.
+- **Deterministic Evidence Budgeting:** Uses deterministic, conservative evidence truncation (by pre-serializing massive MCP payloads) and bounded synthesis output to stay within low-cost provider token limits and prevent context window bloat.
 - **Input Guardrails:** Validates allowable user inputs prior to execution, blocking prompt injection, secret extraction, and out-of-scope boundary bypasses deterministically.
 - **Session Persistence:** Stateful checkpointing via LangGraph's Async SQLite saver allows true cross-turn continuity natively integrated with Streamlit.
 
@@ -66,6 +66,18 @@ The agent is capable of recovering from missing branches and files without user 
 - **Deterministic Tests:** Ensures routing, guardrails, URL extraction, and failure classifications behave correctly using mocked MCP payloads.
 - **Semantic Evaluation (Opt-in):** Uses DeepEval to measure context relevancy, groundedness, and adherence to LLM system rules. *(Note: A green semantic test means the pipeline successfully ran, but if API rate limits skip the validation, it doesn't guarantee semantic quality).*
 - **Continuous Integration:** GitHub Actions workflow runs the deterministic test suite sequentially across **Python 3.11 and 3.12** on every push and PR to `main`.
+
+## Project Structure
+```text
+ProjectEvidenceAI/
+├── app.py                      # Main Streamlit UI entrypoint
+├── src/
+│   ├── agent/                  # LangGraph architecture (planner, executor, synthesizer, budget)
+│   ├── guardrails/             # Deterministic input/output validation checks
+│   └── mcp_server/             # FastMCP server bridging GitHub's REST API
+├── scripts/                    # CLI testing and demo recovery scripts
+└── tests/                      # 45+ deterministic and evaluation benchmarks
+```
 
 ## Setup Instructions
 ```bash
@@ -99,3 +111,8 @@ python scripts/demo_recovery.py
 ## Known Limitations
 - **LLM Rate Limits (Free-tier):** When using providers like Groq on a free tier, tokens-per-minute (TPM) can easily max out during aggressive multi-tool retrieval phases or rapid sequential testing. A strict `MAX_SYNTHESIS_INPUT_TOKENS` budget is implemented, but highly complex repositories may still encounter API 429s/413s.
 - **File Parsing Limits:** Does not currently execute remote code, analyze arbitrary binary files, or natively parse multi-megabyte monolithic source files.
+
+## Future Improvements
+- **Semantic Code Search:** Integrate a vector store (e.g., Qdrant or Pinecone) alongside the MCP server to enable semantic searching across massive codebases without relying entirely on GitHub's native `is:issue` or exact-match file queries.
+- **Multi-Repository Analysis:** Extend `SessionContext` to support querying across multiple interconnected repositories (e.g., frontend and backend repos) in a single plan.
+- **Asynchronous Execution:** Run non-dependent plan steps (e.g., fetching issues and fetching PRs) concurrently in the Executor node to reduce overall time-to-insight.
