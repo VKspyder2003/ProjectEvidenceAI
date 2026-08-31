@@ -1,21 +1,114 @@
-# ProjectEvidenceAI: Agentic RAG over Live GitHub Data
+# ProjectEvidenceAI
+**Agentic RAG over Live GitHub Data**
 
 [![CI](https://github.com/Vishwas/ProjectEvidenceAI/actions/workflows/ci.yml/badge.svg)](https://github.com/Vishwas/ProjectEvidenceAI/actions/workflows/ci.yml)
 
-This repository contains Phase 4 of the Agentic RAG system connecting to live GitHub repository data using LangGraph and the Model Context Protocol (MCP).
+ProjectEvidenceAI is a resilient, fully autonomous agentic architecture designed to synthesize accurate insights from live GitHub repository data using the Model Context Protocol (MCP) and LangGraph.
 
-## Setup
-1. Copy `.env.example` to `.env` and fill in your `GITHUB_TOKEN`.
-2. Install dependencies: `pip install -r requirements.txt`
-3. Run tests: `pytest tests/`
+## Problem Statement
+Retrieving reliable insights from dense software repositories is challenging for traditional RAG systems. Standard chunk-and-embed pipelines struggle with structured, deeply connected API graphs (issues, PRs, branch histories) and suffer from hallucination when files move or branch names differ (e.g., `main` vs. `master`). ProjectEvidenceAI introduces a deterministic, stateful, and self-correcting agent capable of navigating live repository APIs, catching access failures, dynamically reformulating plans, and strictly validating citations against retrieved evidence.
 
-## Running the Demo
-You can run the interactive Streamlit UI locally to test the ProjectEvidenceAI agent:
+## Key Engineering Capabilities
+- **State Machine Orchestration:** Uses LangGraph for cyclical execution, explicitly separating planning, executing, and reformulating nodes.
+- **Model Context Protocol (MCP) Integration:** Direct, authenticated read-access to the GitHub API via a dedicated FastMCP server.
+- **Self-Healing Execution:** A dedicated Reformulator node catches non-fatal execution errors (e.g., 404s) and dynamically injects scoped correction hints to replace only the failed execution steps.
+- **Strict Evidence Budgeting:** Dynamically caps token ingestion to prevent context window bloat and API rate limits.
+- **Algorithmic Citation Guardrails:** Cryptographically verifies every citation URL synthesized by the LLM against the raw MCP tool output.
+- **Session Persistence:** Stateful checkpointing via LangGraph's SQLite saver allows cross-turn continuity.
 
-1. Create and activate a virtual environment
-2. Install dependencies: `pip install -r requirements.txt`
-3. Configure your `.env` file (copy from `.env.example`)
-4. Run the application:
+## Architecture
+
+```mermaid
+graph TD
+    User([User Query]) --> Session[Session Context Injector]
+    Session --> Planner
+
+    subgraph LangGraph State Machine
+        Planner[Planner Node] -->|Generates Plan| Executor[Executor Node]
+        Executor -->|Success| Budget[Evidence Budget Node]
+        Executor -->|404 / Recoverable Error| Reformulator[Reformulator Node]
+        Reformulator -->|Correction Hint| Planner
+        Executor -->|Fatal Error| Fail[Halt Execution]
+        Budget --> Synth[Synthesizer Node]
+        Synth --> Validator[Output Validator]
+    end
+
+    subgraph FastMCP GitHub Server
+        Executor <-->|Tool Execution| Tools[search_issues, read_repository_file, etc.]
+        Tools <-->|REST API| GitHub[(GitHub)]
+    end
+
+    Validator -->|Verified Citations| Result([Grounded Output])
+    Validator -->|Fabrication Detected| Fail
+```
+
+## End-to-End Execution Flow
+1. **Intake:** The query and `SessionContext` (e.g., repo owner/name) are embedded into an `AgentState`.
+2. **Planning:** The LLM generates a strictly schema-compliant execution plan of tools to run.
+3. **Execution & Recovery:** The Executor calls the GitHub MCP server. If a recoverable failure occurs, execution pauses, the Reformulator analyzes the failure, and injects a scoped hint to update the plan without losing prior context.
+4. **Budgeting:** Successful payloads (PR metadata, file diffs) are deduplicated, sorted, and algorithmically truncated to fit within strict inference limits.
+5. **Synthesis:** The Synthesizer drafts an answer heavily constrained by strict systemic rules, citing specific Source IDs and URLs.
+6. **Validation:** A post-execution guardrail scans the draft for markdown citations, verifying each cited URL actually exists in the runtime `Evidence` array.
+
+## Autonomous Recovery Example
+The agent is capable of recovering from missing branches without user intervention:
+- **Initial Plan:** Read `README.md` on branch `main`.
+- **Execution:** MCP tool returns `404 Not Found`.
+- **Reformulator:** "The 'main' branch was not found. Try using the 'master' branch instead..."
+- **Replanning:** Planner issues a localized replacement step for `master`.
+- **Execution:** MCP tool returns `200 OK`.
+- **Outcome:** Agent successfully parses the evidence without developer intervention.
+
+## Guardrails
+- **Evidence Grounding:** Every citation generated by the LLM (e.g., `[PR-42](https://github.com/...)`) is structurally verified. If the LLM invents a URL that was not explicitly provided by the Executor via the MCP server, the Output Validator overrides the response to protect against hallucination.
+- **Input Guardrails:** Validates allowable user inputs, blocking prompt injection, secret extraction, and out-of-scope boundary bypasses.
+
+## Evaluation & CI/CD
+- **Deterministic Tests (45 passing tests):** Ensures routing, guardrails, URL extraction, and failure classifications behave correctly using mocked MCP payloads.
+- **Semantic Evaluation (Opt-in):** Uses DeepEval to measure context relevancy, groundedness, and adherence to LLM system rules.
+- **Continuous Integration:** GitHub Actions workflow runs the deterministic test suite sequentially across Python 3.11 and 3.12 on every push and PR to `main`.
+
+## Project Structure
+- `app.py`: Streamlit User Interface
+- `scripts/`: Manual evaluation and recovery demonstration scripts
+- `src/agent/`: Core LangGraph state machine, nodes, and dependencies
+- `src/guardrails/`: Input/Output validation logic
+- `src/mcp_server/`: FastMCP GitHub REST wrapper
+
+## Setup Instructions
+```bash
+python -m venv venv
+# Linux/macOS
+source venv/bin/activate
+# Windows
+.\venv\Scripts\Activate.ps1
+
+pip install -r requirements.txt
+cp .env.example .env
+```
+*Fill in your `GITHUB_TOKEN` and preferred LLM configuration inside `.env`.*
+
+## Running the Application
+To run the interactive Streamlit UI locally:
 ```bash
 streamlit run app.py
 ```
+
+## Running Tests
+To run the full suite of 45 deterministic tests:
+```bash
+pytest -v
+```
+To run a dedicated terminal trace of the recovery mechanism (bypassing the UI):
+```bash
+python scripts/demo_recovery.py
+```
+
+## Known Limitations
+- **LLM Rate Limits (Free-tier):** When using providers like Groq on a free tier, tokens-per-minute (TPM) can easily max out during aggressive multi-tool retrieval phases or rapid sequential testing. A strict `MAX_SYNTHESIS_INPUT_TOKENS` budget is implemented, but highly complex repositories may still encounter API 429s/413s.
+- **File Parsing Limits:** Does not currently execute remote code, analyze arbitrary binary files, or natively parse multi-megabyte monolithic source files.
+
+## Future Improvements
+- Semantic chunking within the Evidence Budget node for handling massive files
+- Cross-turn vector-based memory for deeper past conversational context
+- Web-search fallback for non-GitHub technical context

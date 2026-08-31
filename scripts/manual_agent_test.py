@@ -1,6 +1,8 @@
 import os
 import asyncio
 import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
 
 sys.stdout.reconfigure(encoding='utf-8')

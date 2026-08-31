@@ -309,6 +309,7 @@ async def read_repository_file(
             file_path=data["path"],
             content=content,
             size=data["size"],
+            html_url=data.get("html_url", ""),
             is_truncated=is_truncated,
             encoding="utf-8"
         )

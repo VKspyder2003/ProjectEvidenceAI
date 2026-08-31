@@ -1,6 +1,25 @@
-.env
+# Virtual environment
+venv/
 .venv/
+
+# Environment / secrets
+.env
+
+# Python
 __pycache__/
+*.py[cod]
+
+# Testing
 .pytest_cache/
-*.pyc
+.coverage
+htmlcov/
+
+# Runtime data
 data/*.db
+
+# Streamlit
+.streamlit/
+
+# IDE
+.vscode/
+.idea/

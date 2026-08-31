@@ -53,5 +53,6 @@ class FileContentResult(BaseModel):
     file_path: str
     content: str
     size: int
+    html_url: str
     is_truncated: bool = False
     encoding: str = "utf-8"

@@ -1,5 +1,8 @@
 import asyncio
 import json
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
 
 from fastmcp import Client
 

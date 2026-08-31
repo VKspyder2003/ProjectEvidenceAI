@@ -130,7 +130,8 @@ async def run_recovery_demo():
                                 print("  ✓ Citations verified\n")
                             else:
                                 print("  ✗ Citation validation failed")
-                                print(f"  Reason: {val_result_dict.get('reason', '')}\n")
+                                violations = val_result_dict.get('violations', [])
+                                print(f"  Reason: {', '.join(violations)}\n")
                                 
             # Final output is retrieved directly from the final state structure
             final_state = (await graph.aget_state(config)).values

@@ -102,6 +102,7 @@ async def executor_node(state: AgentState, config: RunnableConfig) -> Dict[str, 
                         Evidence(
                             source_type="file",
                             source_id=path,
+                            url=data.get("html_url"),
                             content=data,
                             token_estimate=estimate_tokens(data)
                         )
