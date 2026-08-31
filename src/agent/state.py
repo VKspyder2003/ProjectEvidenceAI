@@ -92,5 +92,6 @@ class AgentState(TypedDict):
 
     # Output & Final State
     draft_response: Optional[str]
+    output_validation_result: Optional[Dict[str, Any]]
     fatal_error: bool
     error: Optional[str]

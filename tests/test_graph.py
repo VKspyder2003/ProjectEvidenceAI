@@ -45,7 +45,8 @@ async def test_graph_routing_single_step():
          patch("src.agent.graph.executor_node", new_callable=AsyncMock) as mock_executor, \
          patch("src.agent.graph.reformulator_node", new_callable=AsyncMock) as mock_reformulator, \
          patch("src.agent.graph.evidence_budget_node", new_callable=AsyncMock) as mock_budget, \
-         patch("src.agent.graph.synthesizer_node", new_callable=AsyncMock) as mock_synthesizer:
+         patch("src.agent.graph.synthesizer_node", new_callable=AsyncMock) as mock_synthesizer, \
+         patch("src.agent.graph.output_validator_node", new_callable=AsyncMock) as mock_validator:
         
         mock_planner.return_value = {"plan": [PlanStep(id=1, tool_name="test", arguments={}, reason="test")]}
         
@@ -59,6 +60,7 @@ async def test_graph_routing_single_step():
         mock_executor.side_effect = executor_side_effect
         mock_budget.return_value = {}
         mock_synthesizer.return_value = {"draft_response": "done"}
+        mock_validator.return_value = {}
         
         graph = build_graph()
         initial_state = {"query": "test", "current_step": 0}
@@ -69,6 +71,7 @@ async def test_graph_routing_single_step():
         assert mock_executor.call_count == 1
         assert mock_budget.call_count == 1
         assert mock_synthesizer.call_count == 1
+        assert mock_validator.call_count == 1
         assert result["current_step"] == 1
 
 @pytest.mark.asyncio
@@ -77,7 +80,8 @@ async def test_graph_routing_multi_step():
          patch("src.agent.graph.executor_node", new_callable=AsyncMock) as mock_executor, \
          patch("src.agent.graph.reformulator_node", new_callable=AsyncMock) as mock_reformulator, \
          patch("src.agent.graph.evidence_budget_node", new_callable=AsyncMock) as mock_budget, \
-         patch("src.agent.graph.synthesizer_node", new_callable=AsyncMock) as mock_synthesizer:
+         patch("src.agent.graph.synthesizer_node", new_callable=AsyncMock) as mock_synthesizer, \
+         patch("src.agent.graph.output_validator_node", new_callable=AsyncMock) as mock_validator:
         
         mock_planner.return_value = {"plan": [
             PlanStep(id=1, tool_name="test1", arguments={}, reason="test"),
@@ -94,6 +98,7 @@ async def test_graph_routing_multi_step():
         mock_executor.side_effect = executor_side_effect
         mock_budget.return_value = {}
         mock_synthesizer.return_value = {"draft_response": "done"}
+        mock_validator.return_value = {}
         
         graph = build_graph()
         initial_state = {"query": "test", "current_step": 0}
@@ -104,4 +109,5 @@ async def test_graph_routing_multi_step():
         assert mock_executor.call_count == 2
         assert mock_budget.call_count == 1
         assert mock_synthesizer.call_count == 1
+        assert mock_validator.call_count == 1
         assert result["current_step"] == 2

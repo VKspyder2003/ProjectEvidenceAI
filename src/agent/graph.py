@@ -7,6 +7,7 @@ from .executor import executor_node
 from .synthesizer import synthesizer_node
 from .reformulator import reformulator_node
 from .evidence_budget import evidence_budget_node
+from .output_validator_node import output_validator_node
 
 def evaluate_execution(state: AgentState) -> Literal["executor", "evidence_budget", "reformulator"]:
     """
@@ -46,6 +47,7 @@ def build_graph():
     builder.add_node("reformulator", reformulator_node)
     builder.add_node("evidence_budget", evidence_budget_node)
     builder.add_node("synthesizer", synthesizer_node)
+    builder.add_node("output_validator", output_validator_node)
     
     builder.add_edge(START, "planner")
     
@@ -69,6 +71,9 @@ def build_graph():
     # Evidence budget feeds to synthesizer
     builder.add_edge("evidence_budget", "synthesizer")
     
-    builder.add_edge("synthesizer", END)
+    # Synthesizer feeds to output validator
+    builder.add_edge("synthesizer", "output_validator")
+    
+    builder.add_edge("output_validator", END)
     
     return builder.compile()
