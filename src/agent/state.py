@@ -1,5 +1,14 @@
-from typing import Annotated, Any, Dict, List, Optional, TypedDict
 from operator import add
+from typing import Annotated, Any, Dict, List, Optional, TypedDict
+
+def add_or_clear(left: Any, right: Any) -> Any:
+    if right == "clear":
+        return []
+    if not isinstance(left, list):
+        left = []
+    if not isinstance(right, list):
+        right = [right]
+    return left + right
 from pydantic import BaseModel, Field
 from enum import Enum
 
@@ -75,17 +84,17 @@ class AgentState(TypedDict):
     plan_version: int
 
     # Execution trace
-    tool_calls_history: Annotated[List[ToolCallRecord], add]
+    tool_calls_history: Annotated[List[ToolCallRecord], add_or_clear]
     last_failure: Optional[Dict[str, Any]]
 
     # Evidence
-    retrieved_evidence: Annotated[List[Evidence], add]
+    retrieved_evidence: Annotated[List[Evidence], add_or_clear]
     budgeted_evidence: Optional[List[Evidence]]
     budget_consumed: int
 
     # Recovery
     retry_count: int
-    correction_hints: Annotated[List[str], add]
+    correction_hints: Annotated[List[str], add_or_clear]
     failed_step_id: Optional[int]
 
     # Session context

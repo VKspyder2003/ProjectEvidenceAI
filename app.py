@@ -81,8 +81,24 @@ if prompt := st.chat_input("What changed recently and what needs attention?"):
             st.session_state.chat_history.append({"role": "assistant", "content": error_msg})
             st.stop()
 
+        # Initialize or clear execution state for the new turn
         initial_state = {
             "query": prompt,
+            "plan": [],
+            "current_step": 0,
+            "plan_version": 0,
+            "tool_calls_history": "clear",
+            "last_failure": None,
+            "retrieved_evidence": "clear",
+            "budgeted_evidence": None,
+            "budget_consumed": 0,
+            "retry_count": 0,
+            "correction_hints": "clear",
+            "failed_step_id": None,
+            "draft_response": None,
+            "output_validation_result": None,
+            "fatal_error": False,
+            "error": None
         }
         
         # Only parse and inject session context on the first query of the session
