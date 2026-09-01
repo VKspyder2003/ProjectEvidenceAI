@@ -3,8 +3,10 @@ import sqlite3
 import anyio
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from src.agent.graph import build_graph
-from src.agent.dependencies import get_agent_dependencies
+from src.agent.dependencies import AgentDependencies
 from src.agent.state import SessionContext
+from unittest.mock import MagicMock
+from langchain_core.language_models import BaseChatModel
 
 @pytest.mark.asyncio
 async def test_graph_persistence():
@@ -16,7 +18,12 @@ async def test_graph_persistence():
     # Use an in-memory SQLite database for the test using the async saver
     async with AsyncSqliteSaver.from_conn_string(":memory:") as checkpointer:
         graph = build_graph(checkpointer=checkpointer)
-        deps = get_agent_dependencies()
+        
+        # Use deterministic dummy dependencies to ensure CI doesn't need API keys
+        deps = AgentDependencies(
+            llm=MagicMock(spec=BaseChatModel),
+            mcp_server=MagicMock()
+        )
         
         # 1. Run Session A
         config_a = {"configurable": {"thread_id": "session-a", "dependencies": deps}}
