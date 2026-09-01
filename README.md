@@ -15,7 +15,7 @@ graph TD
     User([User Query]) --> Session[Session Context Injector]
     Session --> Planner
 
-    subgraph LangGraph State Machine
+    subgraph langgraph[LangGraph State Machine]
         Planner[Planner Node] -->|Generates Plan| Executor[Executor Node]
         Executor -->|Success| Budget[Evidence Budget Node]
         Executor -->|404 / Recoverable Error| Reformulator[Reformulator Node]
@@ -25,9 +25,9 @@ graph TD
         Synth --> Validator[Output Validator]
     end
 
-    subgraph FastMCP GitHub Server
-        Executor <-->|Tool Execution| Tools[search_issues, read_repository_file, etc.]
-        Tools <-->|REST API| GitHub[(GitHub)]
+    subgraph fastmcp[FastMCP GitHub Server]
+        Executor -->|Tool Execution| Tools["search_issues, read_repository_file, etc."]
+        Tools -->|REST API| GitHub[(GitHub)]
     end
 
     Validator -->|Verified Citations| Result([Grounded Output])
