@@ -51,7 +51,7 @@ def test_format_evidence_helper():
 async def test_synthesizer_success(mock_config):
     state = {
         "query": "What is the status of PR 42?",
-        "retrieved_evidence": [
+        "budgeted_evidence": [
             Evidence(
                 source_type="pull_request",
                 source_id="PR-42",
@@ -74,7 +74,7 @@ async def test_synthesizer_success(mock_config):
 async def test_synthesizer_no_evidence(mock_config):
     state = {
         "query": "What is the status of PR 42?",
-        "retrieved_evidence": []
+        "budgeted_evidence": []
     }
     
     updates = await synthesizer_node(state, mock_config)
@@ -91,7 +91,7 @@ async def test_synthesizer_no_evidence(mock_config):
 async def test_synthesizer_llm_failure(mock_config):
     state = {
         "query": "What is the status of PR 42?",
-        "retrieved_evidence": [
+        "budgeted_evidence": [
              Evidence(
                 source_type="pull_request",
                 source_id="PR-42",

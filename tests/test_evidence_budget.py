@@ -42,7 +42,7 @@ async def test_complete_synthesis_input_budget():
     
     # Run budget node
     updates = await evidence_budget_node(state, config)
-    bounded_evidence = updates.get("retrieved_evidence", [])
+    bounded_evidence = updates.get("budgeted_evidence", [])
     
     assert len(bounded_evidence) > 0, "Should retain at least some evidence"
     

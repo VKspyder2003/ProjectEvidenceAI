@@ -43,7 +43,7 @@ async def synthesizer_node(state: AgentState, config: RunnableConfig) -> Dict[st
             "draft_response": None
         }
 
-    evidence = state.get("retrieved_evidence", [])
+    evidence = state.get("budgeted_evidence") or []
     query = state.get("query", "")
     
     # Short-circuit if no evidence exists

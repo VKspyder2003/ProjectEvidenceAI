@@ -80,6 +80,7 @@ class AgentState(TypedDict):
 
     # Evidence
     retrieved_evidence: Annotated[List[Evidence], add]
+    budgeted_evidence: Optional[List[Evidence]]
     budget_consumed: int
 
     # Recovery

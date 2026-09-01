@@ -62,5 +62,5 @@ async def evidence_budget_node(state: AgentState, config: RunnableConfig) -> Dic
             
     # Return the bounded evidence list
     return {
-        "retrieved_evidence": final_evidence
+        "budgeted_evidence": final_evidence
     }

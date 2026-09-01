@@ -95,7 +95,7 @@ async def test_run_evaluation_benchmark(capsys):
                 
                 state = {"retrieved_evidence": evidence_objs}
                 updates = await evidence_budget_node(state, {"configurable": {}})
-                new_ev = updates["retrieved_evidence"]
+                new_ev = updates["budgeted_evidence"]
                 
                 passed_count = len(new_ev) == case["expected_count"]
                 

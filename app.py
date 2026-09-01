@@ -148,7 +148,7 @@ if prompt := st.chat_input("What changed recently and what needs attention?"):
                             status.write(msg)
                             trace_log.append(msg)
                         elif node_name == "evidence_budget":
-                            evidence = state_updates.get("retrieved_evidence", [])
+                            evidence = state_updates.get("budgeted_evidence", [])
                             budget = sum(e.token_estimate for e in evidence) if evidence else 0
                             msg = f"✓ Evidence Budget: {len(evidence)} items (~{budget} tokens)"
                             status.write(msg)
